@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Habits" />
+  <meta name="theme-color" content="#0b0b0f" />
+  <title>Habits</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0b0f;
+      --panel: #15151c;
+      --panel-2: #1d1d27;
+      --text: #f4f4f7;
+      --muted: #8e8e99;
+      --border: #2a2a35;
+      --accent: #ffffff;
+      --success: #b7ffcc;
+      --danger: #ff8b8b;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+    }
+
+    .app {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 18px 0 32px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 32px;
+      line-height: 1;
+      margin: 0;
+      letter-spacing: -0.04em;
+    }
+
+    .date {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    .icon-btn, .primary-btn, .ghost-btn {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--text);
+      background: var(--panel-2);
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      font-size: 24px;
+      line-height: 44px;
+    }
+
+    .primary-btn {
+      padding: 12px 16px;
+      font-weight: 700;
+      background: var(--accent);
+      color: #0b0b0f;
+    }
+
+    .ghost-btn {
+      padding: 10px 14px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+
+    .add-panel {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .add-panel.open { display: flex; }
+
+    .add-panel input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--border);
+      background: #0f0f15;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 12px 14px;
+      outline: none;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 78px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      letter-spacing: -0.04em;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .habits {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .habit {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 16px;
+    }
+
+    .habit-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .check {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #0f0f15;
+      color: #0f0f15;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .check.done {
+      background: var(--text);
+      color: #0b0b0f;
+      border-color: var(--text);
+    }
+
+    .habit-title {
+      flex: 1;
+      min-width: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .habit-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .small-btn {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 6px;
+      cursor: pointer;
+    }
+
+    .habit-meta {
+      display: flex;
+      gap: 10px;
+      margin: 14px 0 12px 48px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .calendar {
+      margin-left: 48px;
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 5px;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      border-radius: 7px;
+      background: #24242f;
+      border: 1px solid transparent;
+      position: relative;
+    }
+
+    .day.done { background: var(--text); }
+
+    .day.today {
+      border-color: var(--muted);
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      background: var(--panel);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 34px 20px;
+      margin-top: 14px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    @media (max-width: 360px) {
+      .summary { grid-template-columns: 1fr; }
+      .calendar { grid-template-columns: repeat(10, 1fr); }
+      h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>Habits</h1>
+        <div class="date" id="todayLabel"></div>
+      </div>
+      <button class="icon-btn" id="toggleAdd" aria-label="Add habit">+</button>
+    </header>
+
+    <section class="add-panel" id="addPanel">
+      <input id="habitInput" placeholder="New habit" maxlength="42" autocomplete="off" />
+      <button class="primary-btn" id="addHabit">Add</button>
+    </section>
+
+    <section class="summary">
+      <div class="stat">
+        <strong id="todayDone">0</strong>
+        <span>Done today</span>
+      </div>
+      <div class="stat">
+        <strong id="activeHabits">0</strong>
+        <span>Active habits</span>
+      </div>
+      <div class="stat">
+        <strong id="bestStreak">0</strong>
+        <span>Best streak</span>
+      </div>
+    </section>
+
+    <section class="habits" id="habits"></section>
+    <div class="empty" id="emptyState">Add your first daily habit.</div>
+
+    <div class="footer-note">
+      Data is saved locally on this device only.
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "simple_habits_v1";
+    const habitsEl = document.getElementById("habits");
+    const emptyState = document.getElementById("emptyState");
+    const addPanel = document.getElementById("addPanel");
+    const habitInput = document.getElementById("habitInput");
+
+    let state = loadState();
+
+    function todayISO(offset = 0) {
+      const d = new Date();
+      d.setHours(12, 0, 0, 0);
+      d.setDate(d.getDate() + offset);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function dateLabel() {
+      return new Intl.DateTimeFormat("en", {
+        weekday: "long",
+        month: "short",
+        day: "numeric"
+      }).format(new Date());
+    }
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { habits: [] };
+      } catch {
+        return { habits: [] };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function createHabit(name) {
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        name: name.trim(),
+        createdAt: todayISO(),
+        done: {}
+      };
+    }
+
+    function isDone(habit, date = todayISO()) {
+      return Boolean(habit.done[date]);
+    }
+
+    function toggleHabit(id) {
+      const habit = state.habits.find(h => h.id === id);
+      if (!habit) return;
+      const today = todayISO();
+      if (habit.done[today]) {
+        delete habit.done[today];
+      } else {
+        habit.done[today] = true;
+      }
+      saveState();
+      render();
+    }
+
+    function deleteHabit(id) {
+      const habit = state.habits.find(h => h.id === id);
+      if (!habit) return;
+      const ok = confirm(`Delete "${habit.name}"?`);
+      if (!ok) return;
+      state.habits = state.habits.filter(h => h.id !== id);
+      saveState();
+      render();
+    }
+
+    function totalDone(habit) {
+      return Object.keys(habit.done).length;
+    }
+
+    function currentStreak(habit) {
+      let streak = 0;
+      for (let i = 0; i < 3650; i++) {
+        if (isDone(habit, todayISO(-i))) streak++;
+        else break;
+      }
+      return streak;
+    }
+
+    function bestStreakForHabit(habit) {
+      const dates = Object.keys(habit.done).sort();
+      if (!dates.length) return 0;
+
+      let best = 1;
+      let current = 1;
+
+      for (let i = 1; i < dates.length; i++) {
+        const prev = new Date(dates[i - 1] + "T12:00:00");
+        const curr = new Date(dates[i] + "T12:00:00");
+        const diff = Math.round((curr - prev) / 86400000);
+
+        if (diff === 1) current++;
+        else current = 1;
+
+        best = Math.max(best, current);
+      }
+
+      return best;
+    }
+
+    function renderCalendar(habit) {
+      let html = "";
+      for (let i = 27; i >= 0; i--) {
+        const date = todayISO(-i);
+        const classes = ["day"];
+        if (habit.done[date]) classes.push("done");
+        if (date === todayISO()) classes.push("today");
+        html += `<div class="${classes.join(" ")}" title="${date}"></div>`;
+      }
+      return html;
+    }
+
+    function render() {
+      document.getElementById("todayLabel").textContent = dateLabel();
+
+      const todayCount = state.habits.filter(h => isDone(h)).length;
+      const bestOverall = state.habits.reduce((max, h) => Math.max(max, bestStreakForHabit(h)), 0);
+
+      document.getElementById("todayDone").textContent = todayCount;
+      document.getElementById("activeHabits").textContent = state.habits.length;
+      document.getElementById("bestStreak").textContent = bestOverall;
+
+      emptyState.style.display = state.habits.length ? "none" : "block";
+
+      habitsEl.innerHTML = state.habits.map(habit => {
+        const done = isDone(habit);
+        return `
+          <article class="habit">
+            <div class="habit-main">
+              <button class="check ${done ? "done" : ""}" onclick="toggleHabit('${habit.id}')" aria-label="Toggle habit">✓</button>
+              <div class="habit-title">${escapeHtml(habit.name)}</div>
+              <div class="habit-actions">
+                <button class="small-btn" onclick="deleteHabit('${habit.id}')">Delete</button>
+              </div>
+            </div>
+            <div class="habit-meta">
+              <span>${currentStreak(habit)} day streak</span>
+              <span>${totalDone(habit)} total days</span>
+            </div>
+            <div class="calendar">${renderCalendar(habit)}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    document.getElementById("toggleAdd").addEventListener("click", () => {
+      addPanel.classList.toggle("open");
+      if (addPanel.classList.contains("open")) habitInput.focus();
+    });
+
+    document.getElementById("addHabit").addEventListener("click", () => {
+      const name = habitInput.value.trim();
+      if (!name) return;
+      state.habits.push(createHabit(name));
+      habitInput.value = "";
+      addPanel.classList.remove("open");
+      saveState();
+      render();
+    });
+
+    habitInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("addHabit").click();
+    });
+
+    window.toggleHabit = toggleHabit;
+    window.deleteHabit = deleteHabit;
+
+    render();
+  </script>
+</body>
+</html>
