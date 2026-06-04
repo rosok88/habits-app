@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Habits" />
+  <meta name="theme-color" content="#050507" />
+  <title>Habits</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050507;
+      --panel: rgba(22, 22, 28, 0.92);
+      --panel2: rgba(32, 32, 40, 0.96);
+      --text: #f6f6f8;
+      --muted: #90909c;
+      --soft: #c7c7d1;
+      --border: rgba(255,255,255,0.09);
+      --accent: #ffffff;
+      --danger: #ff8f8f;
+      --radius: 26px;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 30% -10%, rgba(255,255,255,.10), transparent 32%),
+        radial-gradient(circle at 90% 5%, rgba(255,255,255,.07), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom);
+      overflow-x: hidden;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; border: 0; color: inherit; }
+    .app { max-width: 560px; margin: 0 auto; padding: 18px 0 36px; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 36px;
+      line-height: .95;
+      letter-spacing: -0.055em;
+    }
+
+    .date { color: var(--muted); font-size: 14px; margin-top: 7px; }
+    .top-actions { display: flex; gap: 10px; }
+
+    .round-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .add-panel, .settings-panel, .screen {
+      display: none;
+      animation: drop .22s ease both;
+    }
+
+    .add-panel.open, .settings-panel.open, .screen.open { display: block; }
+
+    .add-panel, .settings-panel {
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    @keyframes drop {
+      from { transform: translateY(-8px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .row { display: flex; gap: 10px; align-items: center; }
+
+    .input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 13px 15px;
+      outline: none;
+    }
+
+    .primary {
+      border-radius: 999px;
+      padding: 13px 16px;
+      font-weight: 800;
+      background: var(--accent);
+      color: #050507;
+    }
+
+    .ghost {
+      border-radius: 999px;
+      padding: 11px 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--soft);
+    }
+
+    .danger { color: var(--danger); }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      padding: 15px;
+      min-height: 86px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.055em;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+    .work-card {
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .work-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .work-title strong {
+      display: block;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .work-title span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: 54px 1fr 54px 76px;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .step-btn, .minute-box {
+      height: 50px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .step-btn { font-size: 27px; }
+    .minute-box { font-size: 20px; letter-spacing: -0.03em; }
+    .add-work { height: 50px; }
+
+    .work-stats {
+      display: grid;
+      gap: 13px;
+      margin-top: 8px;
+    }
+
+    .bar-line {
+      display: grid;
+      grid-template-columns: 70px 1fr 70px;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .bar-value {
+      color: var(--text);
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .bar {
+      height: 11px;
+      background: rgba(255,255,255,.12);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--text);
+      border-radius: 999px;
+    }
+
+    .work-records {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .mini-stat {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(0,0,0,.16);
+    }
+
+    .mini-stat strong {
+      display: block;
+      font-size: 20px;
+      letter-spacing: -0.04em;
+    }
+
+    .mini-stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .sessions {
+      margin-top: 14px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    .sessions-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .sessions-head strong { font-size: 15px; }
+    .sessions-head button { font-size: 12px; padding: 8px 10px; }
+
+    .session-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .session-pill {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 7px 10px;
+      background: rgba(0,0,0,.18);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(255,255,255,.06);
+      padding: 5px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      border-radius: 999px;
+      padding: 10px;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 700;
+    }
+
+    .tab.active { background: var(--text); color: #050507; }
+    .habits { display: flex; flex-direction: column; gap: 12px; }
+
+    .habit {
+      padding: 16px;
+      transform: translateX(0);
+      transition: transform .18s ease, opacity .18s ease, background .18s ease;
+      touch-action: pan-y;
+    }
+
+    .habit.done-today { background: rgba(255,255,255,.13); }
+    .habit-main { display: flex; align-items: center; gap: 14px; }
+
+    .check {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.28);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: transparent;
+      transition: .16s ease;
+    }
+
+    .check.done {
+      background: var(--text);
+      border-color: var(--text);
+      color: #050507;
+      transform: scale(1.04);
+    }
+
+    .habit-title {
+      flex: 1;
+      min-width: 0;
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -0.03em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .small-btn {
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 7px;
+    }
+
+    .habit-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 13px 52px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .calendar {
+      margin-left: 52px;
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      border-radius: 7px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid transparent;
+    }
+
+    .day.done { background: var(--text); }
+    .day.today { border-color: var(--muted); }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 36px 20px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+
+    .settings-grid { display: grid; gap: 10px; }
+
+    .settings-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-item:last-child { border-bottom: 0; }
+    .settings-item div:first-child { min-width: 0; }
+    .settings-item strong { display: block; font-size: 15px; }
+
+    .settings-item span {
+      color: var(--muted);
+      font-size: 12px;
+      display: block;
+      margin-top: 3px;
+    }
+
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 31px;
+      background: rgba(255,255,255,.14);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      flex: 0 0 auto;
+    }
+
+    .switch.on { background: var(--text); }
+
+    .switch:after {
+      content: "";
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      top: 2px;
+      left: 3px;
+      border-radius: 50%;
+      background: #fff;
+      transition: .18s ease;
+    }
+
+    .switch.on:after { transform: translateX(20px); background: #050507; }
+
+    .footer-note {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin: 18px 0 22px;
+      min-height: 46px;
+    }
+
+    .back-btn {
+      position: absolute;
+      left: 0;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      background: transparent;
+      font-size: 42px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .detail-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .month-nav {
+      display: grid;
+      grid-template-columns: 54px 1fr 54px;
+      align-items: center;
+      gap: 8px;
+      padding: 6px;
+      margin-bottom: 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+    }
+
+    .month-nav button {
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 26px;
+    }
+
+    .month-nav strong {
+      text-align: center;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .month-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .month-grid-card {
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .weekdays, .month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .weekdays {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .month-day {
+      aspect-ratio: 1;
+      border-radius: 13px;
+      background: rgba(255,255,255,.08);
+      color: var(--muted);
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .month-day.blank { background: transparent; }
+    .month-day.done { background: var(--text); color: #050507; }
+    .month-day.today { outline: 1px solid var(--muted); }
+
+    .history-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 20px 0 12px;
+      letter-spacing: -0.03em;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-item {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 390px) {
+      h1 { font-size: 32px; }
+      .stat { padding: 13px; min-height: 78px; }
+      .stat strong { font-size: 24px; }
+      .calendar { grid-template-columns: repeat(10, 1fr); }
+      .stepper { grid-template-columns: 50px 1fr 50px 68px; gap: 8px; }
+      .bar-line { grid-template-columns: 62px 1fr 58px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <section id="homeScreen" class="screen open">
+      <header>
+        <div>
+          <h1>Habits</h1>
+          <div class="date" id="todayLabel"></div>
+        </div>
+        <div class="top-actions">
+          <button class="round-btn" id="settingsBtn" aria-label="Settings">⋯</button>
+          <button class="round-btn" id="toggleAdd" aria-label="Add habit">+</button>
+        </div>
+      </header>
+
+      <section class="add-panel panel" id="addPanel">
+        <div class="row">
+          <input class="input" id="habitInput" placeholder="New habit" maxlength="42" autocomplete="off" />
+          <button class="primary" id="addHabit">Add</button>
+        </div>
+      </section>
+
+      <section class="settings-panel panel" id="settingsPanel">
+        <div class="settings-grid">
+          <div class="settings-item">
+            <div><strong>Local notifications</strong><span>Works while the app is open or recently active.</span></div>
+            <button class="switch" id="notificationSwitch" aria-label="Toggle notifications"></button>
+          </div>
+          <div class="settings-item">
+            <div><strong>Daily reminder</strong><span>Set the time for local reminder checks.</span></div>
+            <input class="input" id="reminderTime" type="time" style="max-width:125px" />
+          </div>
+          <div class="settings-item">
+            <div><strong>Export backup</strong><span>Download all habits and work sessions as JSON.</span></div>
+            <button class="ghost" id="exportBtn">Export</button>
+          </div>
+          <div class="settings-item">
+            <div><strong>Import backup</strong><span>Restore from a previous JSON export.</span></div>
+            <button class="ghost" id="importBtn">Import</button>
+            <input id="importFile" type="file" accept="application/json" hidden />
+          </div>
+          <div class="settings-item">
+            <div><strong>Reset app</strong><span>Deletes local data from this device.</span></div>
+            <button class="ghost danger" id="resetBtn">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="summary">
+        <div class="stat panel"><strong id="todayDone">0</strong><span>Done today</span></div>
+        <div class="stat panel"><strong id="bestStreak">0</strong><span>Best streak</span></div>
+      </section>
+
+      <section class="work-card panel">
+        <div class="work-title">
+          <div>
+            <strong>Work time</strong>
+            <span>Add focused work minutes</span>
+          </div>
+        </div>
+
+        <div class="stepper">
+          <button class="step-btn" id="minusWork">−</button>
+          <div class="minute-box" id="workMinutesBox">30 min</div>
+          <button class="step-btn" id="plusWork">+</button>
+          <button class="primary add-work" id="addWork">Add</button>
+        </div>
+
+        <div class="work-stats">
+          <div class="bar-line">
+            <span>Today</span>
+            <div class="bar"><div class="bar-fill" id="todayWorkBar"></div></div>
+            <span class="bar-value" id="todayWork">0 h</span>
+          </div>
+          <div class="bar-line">
+            <span>Week</span>
+            <div class="bar"><div class="bar-fill" id="weekWorkBar"></div></div>
+            <span class="bar-value" id="weekWork">0 h</span>
+          </div>
+          <div class="bar-line">
+            <span>Month</span>
+            <div class="bar"><div class="bar-fill" id="monthWorkBar"></div></div>
+            <span class="bar-value" id="monthWork">0 h</span>
+          </div>
+        </div>
+
+        <div class="work-records">
+          <div class="mini-stat">
+            <strong id="bestWorkDay">0 h</strong>
+            <span>Best work day</span>
+          </div>
+          <div class="mini-stat">
+            <strong id="bestWorkWeek">0 h</strong>
+            <span>Best work week</span>
+          </div>
+        </div>
+
+        <div class="sessions">
+          <div class="sessions-head">
+            <strong>Today sessions</strong>
+            <button class="ghost" id="undoWork">Undo last</button>
+          </div>
+          <div class="session-list" id="sessionList"></div>
+        </div>
+      </section>
+
+      <nav class="tabs">
+        <button class="tab active" id="todayTab">Today</button>
+        <button class="tab" id="allTab">All habits</button>
+      </nav>
+
+      <section class="habits" id="habits"></section>
+      <div class="empty" id="emptyState">Add your first daily habit.</div>
+      <div class="footer-note">Swipe a habit right to mark done. Swipe left to undo. Tap the dots to open the monthly calendar.</div>
+    </section>
+
+    <section id="detailScreen" class="screen">
+      <div class="detail-header">
+        <button class="back-btn" id="backToHome">‹</button>
+        <div class="detail-title" id="detailTitle">Habit</div>
+      </div>
+
+      <div class="month-nav">
+        <button id="prevMonth">‹</button>
+        <strong id="monthLabel">Month</strong>
+        <button id="nextMonth">›</button>
+      </div>
+
+      <section class="month-summary">
+        <div class="stat panel"><strong id="monthDone">0</strong><span>days done</span></div>
+        <div class="stat panel"><strong id="monthCurrentStreak">0</strong><span>current streak</span></div>
+        <div class="stat panel"><strong id="monthBest">0</strong><span>best month</span></div>
+      </section>
+
+      <section class="month-grid-card panel">
+        <div class="weekdays">
+          <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+        </div>
+        <div class="month-grid" id="monthGrid"></div>
+      </section>
+
+      <div class="history-title">History</div>
+      <section class="history-list" id="historyList"></section>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "simple_habits_v3";
+
+    const defaults = {
+      habits: [],
+      workSessions: {},
+      workStepMinutes: 30,
+      settings: {
+        notifications: false,
+        reminderTime: "20:00",
+        lastReminderDate: ""
+      },
+      view: "today"
+    };
+
+    let state = loadState();
+    let detailHabitId = null;
+    let detailMonthDate = new Date();
+
+    const $ = id => document.getElementById(id);
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const oldV2 = JSON.parse(localStorage.getItem("simple_habits_v2"));
+        const source = saved || oldV2;
+        if (!source) return clone(defaults);
+        return {
+          ...clone(defaults),
+          ...source,
+          workSessions: source.workSessions || {},
+          workStepMinutes: source.workStepMinutes || 30,
+          settings: { ...defaults.settings, ...(source.settings || {}) }
+        };
+      } catch {
+        return clone(defaults);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function todayISO(offset = 0) {
+      const d = new Date();
+      d.setHours(12,0,0,0);
+      d.setDate(d.getDate() + offset);
+      return d.toISOString().slice(0,10);
+    }
+
+    function dateISO(date) {
+      const d = new Date(date);
+      d.setHours(12,0,0,0);
+      return d.toISOString().slice(0,10);
+    }
+
+    function niceDate() {
+      return new Intl.DateTimeFormat("en", { weekday: "long", month: "short", day: "numeric" }).format(new Date());
+    }
+
+    function monthName(date) {
+      return new Intl.DateTimeFormat("en", { month: "long", year: "numeric" }).format(date);
+    }
+
+    function createHabit(name) {
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        name: name.trim(),
+        createdAt: todayISO(),
+        done: {}
+      };
+    }
+
+    function isDone(habit, date = todayISO()) {
+      return Boolean(habit.done && habit.done[date]);
+    }
+
+    function totalDone(habit) {
+      return Object.keys(habit.done || {}).length;
+    }
+
+    function currentStreak(habit) {
+      let streak = 0;
+      for (let i = 0; i < 3650; i++) {
+        if (isDone(habit, todayISO(-i))) streak++;
+        else break;
+      }
+      return streak;
+    }
+
+    function bestStreakForHabit(habit) {
+      const dates = Object.keys(habit.done || {}).sort();
+      if (!dates.length) return 0;
+
+      let best = 1;
+      let current = 1;
+
+      for (let i = 1; i < dates.length; i++) {
+        const prev = new Date(dates[i - 1] + "T12:00:00");
+        const curr = new Date(dates[i] + "T12:00:00");
+        const diff = Math.round((curr - prev) / 86400000);
+        current = diff === 1 ? current + 1 : 1;
+        best = Math.max(best, current);
+      }
+
+      return best;
+    }
+
+    function toggleHabit(id, forceValue = null) {
+      const habit = state.habits.find(h => h.id === id);
+      if (!habit) return;
+
+      const date = todayISO();
+      if (!habit.done) habit.done = {};
+      const next = forceValue === null ? !habit.done[date] : forceValue;
+
+      if (next) habit.done[date] = true;
+      else delete habit.done[date];
+
+      saveState();
+      renderHome();
+      haptic();
+    }
+
+    function deleteHabit(id) {
+      const habit = state.habits.find(h => h.id === id);
+      if (!habit) return;
+
+      if (!confirm(`Delete "${habit.name}"?`)) return;
+
+      state.habits = state.habits.filter(h => h.id !== id);
+      saveState();
+      renderHome();
+    }
+
+    function renderCalendarDots(habit) {
+      let html = "";
+      for (let i = 27; i >= 0; i--) {
+        const date = todayISO(-i);
+        const cls = ["day"];
+        if (habit.done && habit.done[date]) cls.push("done");
+        if (date === todayISO()) cls.push("today");
+        html += `<div class="${cls.join(" ")}" title="${date}"></div>`;
+      }
+      return html;
+    }
+
+    function minutesToHoursText(minutes) {
+      if (!minutes) return "0 h";
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      if (h && m) return `${h}h ${m}m`;
+      if (h) return `${h} h`;
+      return `${m} min`;
+    }
+
+    function getSessions(date = todayISO()) {
+      if (!state.workSessions[date]) state.workSessions[date] = [];
+      return state.workSessions[date];
+    }
+
+    function workTotalForDate(date) {
+      return (state.workSessions[date] || []).reduce((sum, s) => sum + Number(s.minutes || 0), 0);
+    }
+
+    function startOfWeek(date) {
+      const d = new Date(date);
+      d.setHours(12,0,0,0);
+      const day = d.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      d.setDate(d.getDate() + diff);
+      return d;
+    }
+
+    function workTotalForWeek(date = new Date()) {
+      const start = startOfWeek(date);
+      let total = 0;
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        total += workTotalForDate(dateISO(d));
+      }
+      return total;
+    }
+
+    function workTotalForMonth(date = new Date()) {
+      const y = date.getFullYear();
+      const m = date.getMonth();
+      const days = new Date(y, m + 1, 0).getDate();
+      let total = 0;
+      for (let d = 1; d <= days; d++) {
+        total += workTotalForDate(dateISO(new Date(y, m, d, 12)));
+      }
+      return total;
+    }
+
+    function bestWorkDay() {
+      return Object.keys(state.workSessions || {}).reduce((best, date) => Math.max(best, workTotalForDate(date)), 0);
+    }
+
+    function bestWorkWeek() {
+      const dates = Object.keys(state.workSessions || {});
+      const weekKeys = new Set();
+
+      dates.forEach(date => {
+        weekKeys.add(dateISO(startOfWeek(new Date(date + "T12:00:00"))));
+      });
+
+      let best = 0;
+      weekKeys.forEach(weekStart => {
+        best = Math.max(best, workTotalForWeek(new Date(weekStart + "T12:00:00")));
+      });
+
+      return best;
+    }
+
+    function updateWorkStep(delta) {
+      state.workStepMinutes = Math.max(10, Math.min(720, state.workStepMinutes + delta));
+      saveState();
+      renderWork();
+    }
+
+    function addWorkSession() {
+      const date = todayISO();
+      const sessions = getSessions(date);
+      sessions.push({
+        minutes: state.workStepMinutes,
+        createdAt: new Date().toISOString()
+      });
+      saveState();
+      renderHome();
+      haptic();
+    }
+
+    function undoLastWorkSession() {
+      const dates = Object.keys(state.workSessions || {}).sort().reverse();
+      for (const date of dates) {
+        const sessions = state.workSessions[date] || [];
+        if (sessions.length) {
+          sessions.pop();
+          if (!sessions.length) delete state.workSessions[date];
+          saveState();
+          renderHome();
+          haptic();
+          return;
+        }
+      }
+    }
+
+    function renderWork() {
+      $("workMinutesBox").textContent = `${state.workStepMinutes} min`;
+
+      const today = workTotalForDate(todayISO());
+      const week = workTotalForWeek(new Date());
+      const month = workTotalForMonth(new Date());
+
+      $("todayWork").textContent = minutesToHoursText(today);
+      $("weekWork").textContent = minutesToHoursText(week);
+      $("monthWork").textContent = minutesToHoursText(month);
+
+      const dayTarget = 8 * 60;
+      const weekTarget = 40 * 60;
+      const monthTarget = 160 * 60;
+
+      $("todayWorkBar").style.width = `${Math.min(100, Math.round(today / dayTarget * 100))}%`;
+      $("weekWorkBar").style.width = `${Math.min(100, Math.round(week / weekTarget * 100))}%`;
+      $("monthWorkBar").style.width = `${Math.min(100, Math.round(month / monthTarget * 100))}%`;
+
+      $("bestWorkDay").textContent = minutesToHoursText(bestWorkDay());
+      $("bestWorkWeek").textContent = minutesToHoursText(bestWorkWeek());
+
+      const sessions = getSessions(todayISO());
+      if (!sessions.length) {
+        $("sessionList").innerHTML = `<span class="session-pill">No sessions today</span>`;
+        return;
+      }
+
+      $("sessionList").innerHTML = sessions.map(s => {
+        const time = new Date(s.createdAt);
+        const hhmm = isNaN(time.getTime()) ? "" : time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        return `<span class="session-pill">${minutesToHoursText(s.minutes)}${hhmm ? " · " + hhmm : ""}</span>`;
+      }).join("");
+    }
+
+    function renderHome() {
+      $("todayLabel").textContent = niceDate();
+
+      $("todayDone").textContent = state.habits.filter(h => isDone(h)).length;
+      $("bestStreak").textContent = state.habits.reduce((max, h) => Math.max(max, bestStreakForHabit(h)), 0);
+
+      renderWork();
+
+      $("todayTab").classList.toggle("active", state.view === "today");
+      $("allTab").classList.toggle("active", state.view === "all");
+
+      const habits = state.view === "today"
+        ? state.habits
+        : [...state.habits].sort((a,b) => currentStreak(b) - currentStreak(a));
+
+      $("emptyState").style.display = state.habits.length ? "none" : "block";
+
+      $("habits").innerHTML = habits.map(habit => {
+        const done = isDone(habit);
+        return `
+          <article class="habit panel ${done ? "done-today" : ""}" data-id="${habit.id}">
+            <div class="habit-main">
+              <button class="check ${done ? "done" : ""}" onclick="toggleHabit('${habit.id}')" aria-label="Toggle habit">✓</button>
+              <div class="habit-title">${escapeHtml(habit.name)}</div>
+              <button class="small-btn" onclick="deleteHabit('${habit.id}')">Delete</button>
+            </div>
+            <div class="habit-meta">
+              <span>${currentStreak(habit)} day streak</span>
+              <span>${totalDone(habit)} total days</span>
+            </div>
+            <div class="calendar" onclick="openHabitDetail('${habit.id}')">${renderCalendarDots(habit)}</div>
+          </article>
+        `;
+      }).join("");
+
+      attachSwipe();
+      updateSettingsUI();
+    }
+
+    function openHabitDetail(id) {
+      detailHabitId = id;
+      detailMonthDate = new Date();
+      $("homeScreen").classList.remove("open");
+      $("detailScreen").classList.add("open");
+      renderHabitDetail();
+      window.scrollTo(0, 0);
+    }
+
+    function closeHabitDetail() {
+      $("detailScreen").classList.remove("open");
+      $("homeScreen").classList.add("open");
+      detailHabitId = null;
+      renderHome();
+      window.scrollTo(0, 0);
+    }
+
+    function getDetailHabit() {
+      return state.habits.find(h => h.id === detailHabitId);
+    }
+
+    function monthDoneCount(habit, date) {
+      const y = date.getFullYear();
+      const m = date.getMonth();
+      const days = new Date(y, m + 1, 0).getDate();
+      let count = 0;
+      for (let d = 1; d <= days; d++) {
+        const key = dateISO(new Date(y, m, d, 12));
+        if (habit.done && habit.done[key]) count++;
+      }
+      return count;
+    }
+
+    function bestMonthCount(habit) {
+      const months = {};
+      Object.keys(habit.done || {}).forEach(date => {
+        const key = date.slice(0, 7);
+        months[key] = (months[key] || 0) + 1;
+      });
+      return Object.values(months).reduce((best, n) => Math.max(best, n), 0);
+    }
+
+    function renderHabitDetail() {
+      const habit = getDetailHabit();
+      if (!habit) return closeHabitDetail();
+
+      $("detailTitle").textContent = habit.name;
+      $("monthLabel").textContent = monthName(detailMonthDate);
+      $("monthDone").textContent = monthDoneCount(habit, detailMonthDate);
+      $("monthCurrentStreak").textContent = currentStreak(habit);
+      $("monthBest").textContent = bestMonthCount(habit);
+
+      renderMonthGrid(habit);
+      renderHistory(habit);
+    }
+
+    function renderMonthGrid(habit) {
+      const y = detailMonthDate.getFullYear();
+      const m = detailMonthDate.getMonth();
+      const first = new Date(y, m, 1, 12);
+      const days = new Date(y, m + 1, 0).getDate();
+      const jsDay = first.getDay();
+      const blanks = jsDay === 0 ? 6 : jsDay - 1;
+
+      let html = "";
+
+      for (let i = 0; i < blanks; i++) {
+        html += `<div class="month-day blank"></div>`;
+      }
+
+      for (let d = 1; d <= days; d++) {
+        const key = dateISO(new Date(y, m, d, 12));
+        const cls = ["month-day"];
+        if (habit.done && habit.done[key]) cls.push("done");
+        if (key === todayISO()) cls.push("today");
+        html += `<div class="${cls.join(" ")}">${d}</div>`;
+      }
+
+      $("monthGrid").innerHTML = html;
+    }
+
+    function renderHistory(habit) {
+      const months = [];
+
+      for (let i = 0; i < 12; i++) {
+        const d = new Date();
+        d.setHours(12,0,0,0);
+        d.setMonth(d.getMonth() - i);
+        const count = monthDoneCount(habit, d);
+        const totalDays = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        months.push({ date: d, count, totalDays });
+      }
+
+      $("historyList").innerHTML = months.map(item => {
+        const pct = item.totalDays ? Math.round(item.count / item.totalDays * 100) : 0;
+        const label = new Intl.DateTimeFormat("en", { month: "short", year: "numeric" }).format(item.date);
+        return `
+          <div class="history-item">
+            <div class="history-row">
+              <span>${label}</span>
+              <strong>${item.count}/${item.totalDays}</strong>
+            </div>
+            <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function changeDetailMonth(delta) {
+      detailMonthDate.setMonth(detailMonthDate.getMonth() + delta);
+      renderHabitDetail();
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      }[c]));
+    }
+
+    function haptic() {
+      if (navigator.vibrate) navigator.vibrate(12);
+    }
+
+    function attachSwipe() {
+      document.querySelectorAll(".habit").forEach(card => {
+        let startX = 0;
+        let currentX = 0;
+        let touching = false;
+
+        card.addEventListener("touchstart", e => {
+          touching = true;
+          startX = e.touches[0].clientX;
+          currentX = startX;
+        }, { passive: true });
+
+        card.addEventListener("touchmove", e => {
+          if (!touching) return;
+          currentX = e.touches[0].clientX;
+          const dx = currentX - startX;
+          if (Math.abs(dx) < 12) return;
+          card.style.transform = `translateX(${Math.max(-80, Math.min(80, dx))}px)`;
+          card.style.opacity = String(1 - Math.min(Math.abs(dx) / 500, .16));
+        }, { passive: true });
+
+        card.addEventListener("touchend", () => {
+          if (!touching) return;
+          touching = false;
+          const dx = currentX - startX;
+          const id = card.dataset.id;
+          card.style.transform = "";
+          card.style.opacity = "";
+
+          if (dx > 72) toggleHabit(id, true);
+          if (dx < -72) toggleHabit(id, false);
+        });
+      });
+    }
+
+    function updateSettingsUI() {
+      $("notificationSwitch").classList.toggle("on", state.settings.notifications);
+      $("reminderTime").value = state.settings.reminderTime || "20:00";
+    }
+
+    function requestNotifications() {
+      if (!("Notification" in window)) {
+        alert("Notifications are not supported in this browser.");
+        return;
+      }
+
+      Notification.requestPermission().then(permission => {
+        state.settings.notifications = permission === "granted";
+        saveState();
+        updateSettingsUI();
+
+        if (permission === "granted") {
+          new Notification("Habits reminders enabled", {
+            body: "Your local reminder check is active while the app is open."
+          });
+        }
+      });
+    }
+
+    function checkReminder() {
+      if (!state.settings.notifications) return;
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+      const now = new Date();
+      const hhmm = now.toTimeString().slice(0,5);
+      const today = todayISO();
+
+      if (hhmm >= state.settings.reminderTime && state.settings.lastReminderDate !== today) {
+        const left = state.habits.filter(h => !isDone(h)).length;
+        if (left > 0) {
+          new Notification("Habits reminder", {
+            body: `${left} habit${left === 1 ? "" : "s"} left today.`
+          });
+        }
+        state.settings.lastReminderDate = today;
+        saveState();
+      }
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `habits-backup-${todayISO()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackup(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          if (!imported.habits || !Array.isArray(imported.habits)) throw new Error("Invalid backup");
+          state = {
+            ...clone(defaults),
+            ...imported,
+            workSessions: imported.workSessions || {},
+            workStepMinutes: imported.workStepMinutes || 30,
+            settings: { ...defaults.settings, ...(imported.settings || {}) }
+          };
+          saveState();
+          renderHome();
+          alert("Backup imported.");
+        } catch {
+          alert("This backup file is not valid.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    $("toggleAdd").addEventListener("click", () => {
+      $("addPanel").classList.toggle("open");
+      $("settingsPanel").classList.remove("open");
+      if ($("addPanel").classList.contains("open")) $("habitInput").focus();
+    });
+
+    $("settingsBtn").addEventListener("click", () => {
+      $("settingsPanel").classList.toggle("open");
+      $("addPanel").classList.remove("open");
+    });
+
+    $("addHabit").addEventListener("click", () => {
+      const name = $("habitInput").value.trim();
+      if (!name) return;
+      state.habits.push(createHabit(name));
+      $("habitInput").value = "";
+      $("addPanel").classList.remove("open");
+      saveState();
+      renderHome();
+    });
+
+    $("habitInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") $("addHabit").click();
+    });
+
+    $("minusWork").addEventListener("click", () => updateWorkStep(-10));
+    $("plusWork").addEventListener("click", () => updateWorkStep(10));
+    $("addWork").addEventListener("click", addWorkSession);
+    $("undoWork").addEventListener("click", undoLastWorkSession);
+
+    $("todayTab").addEventListener("click", () => {
+      state.view = "today";
+      saveState();
+      renderHome();
+    });
+
+    $("allTab").addEventListener("click", () => {
+      state.view = "all";
+      saveState();
+      renderHome();
+    });
+
+    $("notificationSwitch").addEventListener("click", () => {
+      if (!state.settings.notifications) {
+        requestNotifications();
+      } else {
+        state.settings.notifications = false;
+        saveState();
+        updateSettingsUI();
+      }
+    });
+
+    $("reminderTime").addEventListener("change", e => {
+      state.settings.reminderTime = e.target.value || "20:00";
+      saveState();
+    });
+
+    $("exportBtn").addEventListener("click", exportBackup);
+    $("importBtn").addEventListener("click", () => $("importFile").click());
+
+    $("importFile").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (file) importBackup(file);
+      e.target.value = "";
+    });
+
+    $("resetBtn").addEventListener("click", () => {
+      if (!confirm("Delete all habits, work sessions and local data?")) return;
+      state = clone(defaults);
+      saveState();
+      renderHome();
+    });
+
+    $("backToHome").addEventListener("click", closeHabitDetail);
+    $("prevMonth").addEventListener("click", () => changeDetailMonth(-1));
+    $("nextMonth").addEventListener("click", () => changeDetailMonth(1));
+
+    window.toggleHabit = toggleHabit;
+    window.deleteHabit = deleteHabit;
+    window.openHabitDetail = openHabitDetail;
+
+    renderHome();
+    checkReminder();
+    setInterval(checkReminder, 30000);
+  </script>
+</body>
+</html>
